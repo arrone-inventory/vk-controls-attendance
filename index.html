@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0a2c57">
+<title>VK Controls Attendance Portal</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f3f6fa;color:#172033}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+header{height:68px;background:#fff;border-bottom:1px solid #e1e7ef;padding:0 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
+.brand{display:flex;align-items:center;gap:10px}.logo{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,#092a55,#17558c);color:#fff;display:grid;place-items:center;font-weight:900}.brand b{color:#092a55}.brand small{display:block;color:#24a148;font-weight:800;font-size:9px;letter-spacing:1px}
+.layout{display:flex;min-height:calc(100vh - 68px)}aside{width:230px;background:#102b4d;padding:12px;flex-shrink:0}nav button{width:100%;text-align:left;border:0;background:transparent;color:#dbe7f3;padding:11px;border-radius:8px;margin-bottom:3px}nav button:hover,nav button.active{background:#1e4d78;color:#fff}
+main{padding:22px;flex:1;max-width:1450px}.page{display:none}.page.active{display:block}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:18px}.top h1{margin:0;color:#092a55}.muted{color:#687587}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}.card,.panel{background:#fff;border:1px solid #e1e7ef;border-radius:13px;padding:17px;box-shadow:0 3px 14px #102a430b}.metric{font-size:30px;font-weight:900;color:#092a55;margin-top:6px}.section{margin-top:16px}
+.btn{border:0;border-radius:8px;padding:10px 14px;background:#092a55;color:#fff;font-weight:700}.btn.primary{background:#24a148}.btn.soft{background:#edf2f7;color:#092a55}.btn.danger{background:#d92d20}.btn.warn{background:#e98b17}
+form .row,.formgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:9px;margin-bottom:10px}
+input,select,textarea{width:100%;padding:10px;border:1px solid #cfd7e2;border-radius:8px;background:#fff;color:#172033}textarea{min-height:75px}
+table{width:100%;border-collapse:collapse;background:#fff}.table-wrap{overflow:auto}.table-wrap table{min-width:760px}th,td{padding:10px 8px;border-bottom:1px solid #edf0f4;text-align:left;font-size:12px}th{background:#f3f5f7;color:#556273}
+.badge{display:inline-block;padding:5px 9px;border-radius:20px;font-size:10px;font-weight:850}.ok{background:#eaf8ef;color:#16783a}.warn{background:#fff4df;color:#9a6208}.bad{background:#feeceb;color:#b42318}
+.alert{padding:11px;border-radius:8px;background:#eef6ff;border-left:4px solid #3c82f6;margin-bottom:12px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.login{min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#092a55,#123f72)}.loginbox{width:min(410px,92vw);background:#fff;border-radius:18px;padding:30px;box-shadow:0 18px 60px #0005}.loginbox h1{text-align:center;color:#092a55;margin:10px 0 4px}.loginbox .brand{justify-content:center}
+.modal{position:fixed;inset:0;background:#0006;display:none;align-items:center;justify-content:center;z-index:100;padding:15px}.modal.show{display:flex}.modalbox{background:#fff;border-radius:15px;width:min(700px,96vw);max-height:90vh;overflow:auto;padding:20px}
+.mobilecard{max-width:520px;margin:auto}.bigtime{text-align:center;font-size:40px;font-weight:900;color:#092a55}.loc{padding:10px;border-radius:9px;background:#eef9f1;color:#17783a;margin:10px 0;font-size:12px}
+.toast{position:fixed;right:20px;bottom:20px;background:#092a55;color:#fff;padding:12px 16px;border-radius:9px;display:none;z-index:200}
+.session-info{font-size:11px;color:#687587;margin-top:4px}.audit-log{background:#f9f9f9;padding:8px;border-radius:6px;font-size:11px;margin-top:8px;max-height:150px;overflow-y:auto}
+@media(max-width:800px){aside{width:65px}aside .label{display:none}main{padding:12px}.top{align-items:flex-start;flex-direction:column}.brand b{font-size:14px}.grid{grid-template-columns:1fr}.btn{padding:8px 12px;font-size:13px}input,select,textarea{padding:8px;font-size:16px}}
+</style>
+</head>
+<body>
+<div id="login" class="login">
+  <div class="loginbox">
+    <div class="brand"><div class="logo">VK</div><div><b>VK CONTROLS</b><small>ATTENDANCE PORTAL</small></div></div>
+    <h1>Secure Login</h1><p class="muted" style="text-align:center">Admin & employee attendance management</p>
+    <label>User ID / Mobile</label><input id="loginUser" placeholder="admin or employee mobile" value="admin">
+    <label>Password</label><input id="loginPass" type="password" placeholder="Password" value="">
+    <button class="btn" style="width:100%;margin-top:15px" onclick="login()">Login</button>
+    <div class="alert" style="margin-top:14px;font-size:12px"><b>Demo Credentials:</b><br>Admin: <b>admin / demo123</b><br>Staff: <b>9876543210 / staff123</b></div>
+    <p class="muted" style="font-size:11px;text-align:center;margin-top:20px">🔒 Enhanced Security v2 • Password hashing enabled • Session tokens • Audit logging</p>
+  </div>
+</div>
+<div id="app" style="display:none">
+<header><div class="brand"><div class="logo">VK</div><div><b>VK CONTROLS</b><small>ATTENDANCE PORTAL</small></div></div><div><span id="userBadge" class="badge ok"></span> <span class="session-info" id="sessionInfo"></span> <button class="btn soft" onclick="logout()">Logout</button></div></header>
+<div class="layout">
+<aside><nav id="nav">
+<button class="active" data-page="dashboard">📊 <span class="label">Dashboard</span></button>
+<button data-page="staff">👥 <span class="label">Staff</span></button>
+<button data-page="outlets">📍 <span class="label">Outlets</span></button>
+<button data-page="attendance">🕘 <span class="label">Attendance</span></button>
+<button data-page="reports">📋 <span class="label">Daily Reports</span></button>
+<button data-page="leave">🏖️ <span class="label">Leave</span></button>
+<button data-page="audit" style="display:none">📋 <span class="label">Audit Log</span></button>
+<button data-page="settings">⚙️ <span class="label">Settings</span></button>
+<button data-page="backup">💾 <span class="label">Backup</span></button>
+</nav></aside>
+<main>
+<section id="dashboard" class="page active">
+<div class="top"><div><h1 id="dashTitle">Admin Dashboard</h1><p class="muted" id="dashSub">Attendance, staff and outlet control</p></div><button class="btn primary" onclick="openStaffModal()">+ Add Staff</button></div>
+<div class="grid">
+<div class="card">Active Staff<div class="metric" id="mStaff">0</div></div>
+<div class="card">Present Today<div class="metric" id="mPresent">0</div></div>
+<div class="card">Absent Today<div class="metric" id="mAbsent">0</div></div>
+<div class="card">Pending Reports<div class="metric" id="mPending">0</div></div>
+<div class="card">Outlets<div class="metric" id="mOutlets">0</div></div>
+</div>
+<div class="grid section">
+<div class="panel"><h3>Today's Attendance</h3><div class="table-wrap"><div id="todayTable"></div></div></div>
+<div class="panel"><h3>Quick Actions</h3>
+<div class="actions">
+<button class="btn soft" onclick="go('staff')">👥 Manage Staff</button>
+<button class="btn soft" onclick="go('outlets')">📍 Manage Outlets</button>
+<button class="btn soft" onclick="go('attendance')">🕘 Attendance Records</button>
+<button class="btn soft" onclick="go('reports')">📋 Review Reports</button>
+<button class="btn soft" onclick="go('leave')">🏖️ Leave Requests</button>
+<button class="btn primary" onclick="downloadCSV()">📊 Export Attendance</button>
+</div>
+<div id="staffMobilePanel"></div>
+</div></div>
+</section>
+<section id="staff" class="page"><div class="top"><div><h1>Staff Management</h1><p class="muted">Multiple outlets, work type and weekly schedules</p></div><button class="btn primary" onclick="openStaffModal()">+ Add Staff</button></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Mobile</th><th>Role</th><th>Outlets</th><th>Work</th><th>Status</th><th>Action</th></tr></thead><tbody id="staffTable"></tbody></table></div></div></section>
+<section id="outlets" class="page"><h1>Outlet Management</h1><div class="panel"><form id="outletForm"><div class="row"><input name="name" placeholder="Outlet name" required><input name="location" placeholder="Location"><input name="radius" type="number" value="150" placeholder="GPS radius (m)"><button class="btn primary">Add Outlet</button></div></form></div><div class="panel section table-wrap"><table><thead><tr><th>Outlet</th><th>Location</th><th>GPS Radius</th><th>Action</th></tr></thead><tbody id="outletTable"></tbody></table></div></section>
+<section id="attendance" class="page"><h1>Attendance Records</h1><div class="panel"><div class="actions"><input id="attDateFilter" type="date" style="max-width:190px"><button class="btn soft" onclick="renderAttendance()">Filter</button><button class="btn primary" onclick="downloadCSV()">Export CSV</button></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Staff</th><th>Outlet</th><th>Check In</th><th>Check Out</th><th>Status</th></tr></thead><tbody id="attendanceTable"></tbody></table></div></div></section>
+<section id="reports" class="page"><h1>Daily Report Tracking</h1><div class="panel"><div class="table-wrap"><table><thead><tr><th>Date</th><th>Staff</th><th>Status</th><th>Submitted At</th></tr></thead><tbody id="reportTable"></tbody></table></div></div></section>
+<section id="leave" class="page"><h1>Leave Requests</h1><div class="panel"><div class="table-wrap"><table><thead><tr><th>Date</th><th>Staff</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead><tbody id="leaveTable"></tbody></table></div></div></section>
+<section id="audit" class="page"><h1>Admin Audit Log</h1><div class="panel"><div class="actions"><button class="btn soft" onclick="downloadAuditLog()">📊 Export Audit Log</button><button class="btn soft" onclick="clearAuditLog()">Clear Logs</button></div><div class="audit-log" id="auditLogDisplay"></div></div></section>
+<section id="settings" class="page"><h1>Attendance Rules</h1><div class="panel"><div class="formgrid">
+<label>Shift Start<input id="shiftStart" type="time"></label><label>Late After<input id="lateAfter" type="time"></label><label>Half Day After<input id="halfAfter" type="time"></label><label>Minimum Hours<input id="minHours" type="number" step=".5"></label><label>Reports Required / Week<input id="weeklyReportsRequired" type="number" min="1" max="7"></label>
+</div><button class="btn primary" onclick="saveSettings()">Save Rules</button>
+<h3 style="margin-top:20px">Admin Password Reset</h3><div class="row"><input id="newAdminPass" type="password" placeholder="New admin password" maxlength="50"><button class="btn soft" onclick="resetAdminPassword()">Update Password</button></div></div></section>
+<section id="backup" class="page"><h1>Backup & Restore</h1><div class="alert">This standalone version stores data in your browser. Before moving computers or clearing browser data, create a backup.</div><div class="actions"><button class="btn primary" onclick="downloadJSON()">💾 Download Full Backup</button><label class="btn soft" style="display:inline-block">Restore Backup <input type="file" accept=".json" onchange="restoreJSON(event)" style="display:none"></label><button class="btn soft" onclick="downloadCSV()">📊 Attendance CSV</button></div><div class="panel"><h3>Current Data</h3><p>Staff: <b id="bStaff">0</b> | Outlets: <b id="bOutlets">0</b> | Attendance: <b id="bAttendance">0</b> | Reports: <b id="bReports">0</b> | Leave: <b id="bLeave">0</b></p></div></section>
+<section id="staffMobile" class="page">
+<div class="mobilecard"><div class="top"><div><h1>Employee Attendance</h1><p id="staffWelcome" class="muted"></p></div></div>
+<div class="card"><h3>Today's Status</h3><p id="staffStatus"></p><p>Check In: <b id="inTime">—</b></p><p>Check Out: <b id="outTime">—</b></p><p>Working Hours: <b id="hours">—</b></p></div>
+<div class="card"><div class="bigtime" id="clock"></div><label>Today's Outlet<select id="todayOutlet"></select></label><div id="gpsStatus" class="loc">Location not checked</div><button class="btn dark" style="width:100%;margin-bottom:8px" onclick="getGPS()">📍 Capture GPS Location</button><video id="video" autoplay playsinline style="display:none;width:100%;border-radius:10px"></video><canvas id="canvas" style="display:none"></canvas><div class="actions"><button class="btn soft" onclick="startCamera()">Open Selfie Camera</button><button class="btn soft" onclick="takeSelfie()">Capture Selfie</button></div><div id="selfieMsg" class="muted"></div><div class="grid" style="grid-template-columns:1fr 1fr;margin-top:10px"><button class="btn primary" onclick="checkIn()">Check In</button><button class="btn danger" onclick="checkOut()">Check Out</button></div></div>
+<div class="card"><h3>Weekly Reports</h3><div id="myReports"></div><button class="btn primary" style="width:100%" onclick="submitReport()">Submit Today's Report</button></div>
+<div class="card"><h3>Leave Request</h3><div class="formgrid"><input id="leaveDate" type="date"><input id="leaveReason" placeholder="Reason"><button class="btn soft" onclick="requestLeave()">Apply Leave</button></div></div>
+</div>
+</section>
+</main></div></div>
+<div id="staffModal" class="modal"><div class="modalbox"><h2>Add / Edit Staff</h2><div class="formgrid">
+<label>Name<input id="sName"></label><label>Mobile<input id="sMobile"></label><label>Password<input id="sPw" placeholder="Auto-generated if empty" value=""></label><label>Role<input id="sRole" placeholder="Controller / Audit Executive"></label>
+<label>Work Type<select id="sWorkType"><option>Full Time</option><option>Part Time</option></select></label><label>Work Pattern<select id="sPattern"><option>Daily</option><option>Weekly</option></select></label>
+<label>Assigned Outlets<select id="sOutlets" multiple size="5"></select></label><label>Weekly Work Days<input id="sDays" placeholder="Mon, Wed, Fri"></label>
+</div><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="saveStaff()">Save Staff</button><button class="btn soft" onclick="closeStaffModal()">Cancel</button></div></div></div>
+<div id="toast" class="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<script>
+const KEY='vk_attendance_portal_v2';
+let db=JSON.parse(localStorage.getItem(KEY)||'null');
+if(!db){
+  db={
+    settings:{shiftStart:'09:15',lateAfter:'09:30',halfAfter:'12:00',minHours:8,weeklyReportsRequired:3,company:'VK Controls'},
+    outlets:[{id:1,name:'Koramangala',location:'Bengaluru',radius:150},{id:2,name:'Indiranagar',location:'Bengaluru',radius:150}],
+    staff:[
+      {id:1,name:'Vasudevan V',mobile:'9876543210',passwordHash:hashPassword('staff123'),role:'Controller',outletIds:[1,2],workType:'Full Time',workPattern:'Daily',workDays:[],active:true},
+      {id:2,name:'Subash M',mobile:'9876543211',passwordHash:hashPassword('staff123'),role:'Audit Executive',outletIds:[2],workType:'Part Time',workPattern:'Weekly',workDays:['Mon','Wed','Fri'],active:true}
+    ],
+    adminPasswordHash:hashPassword('demo123'),
+    attendance:[],
+    reports:[],
+    leaves:[],
+    auditLog:[]
+  };
+  localStorage.setItem(KEY,JSON.stringify(db))
+}
+
+function hashPassword(pwd){return CryptoJS.SHA256(pwd+'_vk_salt').toString()}
+function verifyPassword(pwd,hash){return hashPassword(pwd)===hash}
+
+let session=null,gps=null,stream=null,selfieData=null,editStaffId=0,sessionToken=null,sessionExpiry=null;
+const $=id=>document.getElementById(id), today=()=>new Date().toISOString().slice(0,10);
+
+function toast(x){let t=$('toast');t.textContent=x;t.style.display='block';setTimeout(()=>t.style.display='none',2200)}
+function logAudit(action,details=''){db.auditLog.push({timestamp:new Date().toLocaleString(),admin:session.name,action,details});if(db.auditLog.length>500)db.auditLog.shift();save()}
+
+function save(){localStorage.setItem(KEY,JSON.stringify(db));renderAll()}
+function staffName(id){return db.staff.find(x=>x.id==id)?.name||'Unknown'}
+function outletName(id){return db.outlets.find(x=>x.id==id)?.name||'—'}
+function attendanceFor(id,date=today()){return db.attendance.find(a=>a.staffId==id&&a.date==date)}
+
+function login(){
+  let u=$('loginUser').value.trim(),p=$('loginPass').value;
+  if(u==='admin'){
+    if(!verifyPassword(p,db.adminPasswordHash))return alert('Invalid admin password');
+    sessionToken=Math.random().toString(36).substr(2,32);
+    sessionExpiry=Date.now()+8*60*60*1000;
+    session={role:'admin',name:'Administrator',token:sessionToken};
+    logAudit('LOGIN','Admin logged in');
+    showApp();
+  }else{
+    let s=db.staff.find(x=>x.mobile===u&&verifyPassword(p,x.passwordHash)&&x.active);
+    if(!s)return alert('Invalid User ID or Password');
+    sessionToken=Math.random().toString(36).substr(2,32);
+    sessionExpiry=Date.now()+8*60*60*1000;
+    session={role:'staff',name:s.name,staffId:s.id,token:sessionToken};
+    logAudit('LOGIN','Staff '+s.name+' logged in');
+    showApp();
+  }
+}
+
+function checkSession(){if(!session||!sessionToken||Date.now()>sessionExpiry){logout();return false}return true}
+
+function showApp(){
+  $('login').style.display='none';
+  $('app').style.display='block';
+  $('userBadge').textContent=session.name;
+  if(session.role==='admin'){document.querySelector('[data-page="audit"]').style.display='block'}
+  $('sessionInfo').textContent='Session expires in ~8h';
+  if(session.role==='staff'){
+    document.querySelectorAll('#nav button').forEach(b=>{if(!['dashboard'].includes(b.dataset.page))b.style.display='none'});
+    $('dashTitle').textContent='Employee Attendance';
+    $('dashSub').textContent='GPS, selfie, daily reports and leave';
+    go('staffMobile')
+  }else{
+    renderAll();
+  }
+}
+
+function logout(){
+  if(session)logAudit('LOGOUT',session.role+' logged out');
+  session=null;
+  sessionToken=null;
+  location.reload();
+}
+
+function go(page){
+  if(!checkSession())return;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  $(page).classList.add('active');
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
+  if(page==='staffMobile')renderStaffMobile();
+  else if(page==='audit')renderAuditLog();
+  else renderAll()
+}
+
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.page));
+
+function renderAll(){renderSelects();renderDashboard();renderStaff();renderOutlets();renderAttendance();renderReports();renderLeave();renderSettings();renderBackup()}
+
+function renderDashboard(){
+  let active=db.staff.filter(s=>s.active),at=db.attendance.filter(a=>a.date===today()&&a.checkIn);
+  $('mStaff').textContent=active.length;$('mPresent').textContent=at.length;$('mAbsent').textContent=Math.max(0,active.length-at.length);
+  $('mPending').textContent=db.reports.filter(r=>r.date===today()&&!r.submitted).length;$('mOutlets').textContent=db.outlets.length;
+  $('todayTable').innerHTML=tableAttendance(db.attendance.filter(a=>a.date===today()))||'<p class="muted">No attendance yet.</p>';
+  $('staffMobilePanel').innerHTML='<p><b>Shift:</b> '+db.settings.shiftStart+' | <b>Late after:</b> '+db.settings.lateAfter+'</p><p class="muted">Use the Staff login on mobile for GPS, selfie check-in/out and reports.</p>'
+}
+
+function tableAttendance(rows){return `<table><thead><tr><th>Staff</th><th>Outlet</th><th>In</th><th>Out</th><th>Status</th></tr></thead><tbody>${rows.map(a=>`<tr><td>${staffName(a.staffId)}</td><td>${outletName(a.outletId)}</td><td>${a.checkIn||'—'}</td><td>${a.checkOut||'—'}</td><td><span class="badge ${a.status==='Late'?'warn':'ok'}">${a.status||'Present'}</span></td></tr>`).join('')}</tbody></table>`}
+
+function renderStaff(){
+  $('staffTable').innerHTML=db.staff.map(s=>`<tr><td>${s.name}</td><td>${s.mobile}</td><td>${s.role}</td><td>${(s.outletIds||[]).map(outletName).join(', ')||'—'}</td><td>${s.workType} / ${s.workPattern}${s.workPattern==='Weekly'?' ('+(s.workDays||[]).join(', ')+')':''}</td><td><span class="badge ${s.active?'ok':'bad'}">${s.active?'Active':'Inactive'}</span></td><td><button class="btn soft" onclick="editStaff(${s.id})">Edit</button> <button class="btn soft" onclick="toggleStaff(${s.id})">${s.active?'Deactivate':'Activate'}</button></td></tr>`).join('')
+}
+
+function renderOutlets(){
+  $('outletTable').innerHTML=db.outlets.map(o=>`<tr><td>${o.name}</td><td>${o.location||'—'}</td><td>${o.radius} m</td><td>${o.id===1?'—':`<button class="btn danger" onclick="deleteOutlet(${o.id})">Delete</button>`}</td></tr>`).join('')
+}
+
+function renderSelects(){
+  $('sOutlets').innerHTML=db.outlets.map(o=>`<option value="${o.id}">${o.name}</option>`).join('');
+  $('todayOutlet').innerHTML=(session?.staffId?db.staff.find(s=>s.id===session.staffId)?.outletIds||[]:[]).map(id=>`<option value="${id}">${outletName(id)}</option>`).join('')
+}
+
+function renderAttendance(){
+  let f=$('attDateFilter').value||'';
+  let rows=db.attendance.slice().reverse().filter(a=>!f||a.date===f);
+  $('attendanceTable').innerHTML=rows.map(a=>`<tr><td>${a.date}</td><td>${staffName(a.staffId)}</td><td>${outletName(a.outletId)}</td><td>${a.checkIn||'—'}</td><td>${a.checkOut||'—'}</td><td>${a.status||'Present'}</td></tr>`).join('')||'<tr><td colspan="6">No records.</td></tr>'
+}
+
+function renderReports(){
+  $('reportTable').innerHTML=db.reports.slice().reverse().map(r=>`<tr><td>${r.date}</td><td>${staffName(r.staffId)}</td><td><span class="badge ${r.submitted?'ok':'warn'}">${r.submitted?'Submitted':'Pending'}</span></td><td>${r.submittedAt||'—'}</td></tr>`).join('')||'<tr><td colspan="4">No reports.</td></tr>'
+}
+
+function renderLeave(){
+  $('leaveTable').innerHTML=db.leaves.slice().reverse().map(l=>`<tr><td>${l.date}</td><td>${staffName(l.staffId)}</td><td>${l.reason}</td><td>${l.status}</td><td>${l.status==='Pending'?`<button class="btn primary" onclick="leaveAction(${l.id},'Approved')">Approve</button> <button class="btn danger" onclick="leaveAction(${l.id},'Rejected')">Reject</button>`:'—'}</td></tr>`).join('')||'<tr><td colspan="5">No leave requests.</td></tr>'
+}
+
+function renderSettings(){
+  $('shiftStart').value=db.settings.shiftStart;$('lateAfter').value=db.settings.lateAfter;$('halfAfter').value=db.settings.halfAfter;$('minHours').value=db.settings.minHours;$('weeklyReportsRequired').value=db.settings.weeklyReportsRequired
+}
+
+function renderAuditLog(){
+  $('auditLogDisplay').innerHTML=db.auditLog.slice().reverse().map(l=>`<div style="padding:6px;border-bottom:1px solid #eee"><b>${l.timestamp}</b> | ${l.admin} | ${l.action}${l.details?' - '+l.details:''}</div>`).join('')||'<p class="muted">No audit entries yet.</p>'
+}
+
+function renderBackup(){
+  $('bStaff').textContent=db.staff.length;$('bOutlets').textContent=db.outlets.length;$('bAttendance').textContent=db.attendance.length;$('bReports').textContent=db.reports.length;$('bLeave').textContent=db.leaves.length
+}
+
+function openStaffModal(){
+  editStaffId=0;$('sName').value='';$('sMobile').value='';$('sPw').value='';$('sRole').value='';$('sWorkType').value='Full Time';$('sPattern').value='Daily';$('sDays').value='';[...$('sOutlets').options].forEach(o=>o.selected=false);$('staffModal').classList.add('show')
+}
+
+function closeStaffModal(){$('staffModal').classList.remove('show')}
+
+function editStaff(id){
+  let s=db.staff.find(x=>x.id===id);if(!s)return;editStaffId=id;$('sName').value=s.name;$('sMobile').value=s.mobile;$('sPw').value='';$('sRole').value=s.role;$('sWorkType').value=s.workType;$('sPattern').value=s.workPattern;$('sDays').value=(s.workDays||[]).join(', ');[...$('sOutlets').options].forEach(o=>o.selected=(s.outletIds||[]).includes(+o.value));$('staffModal').classList.add('show')
+}
+
+function saveStaff(){
+  let name=$('sName').value.trim(),mobile=$('sMobile').value.trim(),password=$('sPw').value,role=$('sRole').value.trim(),outletIds=[...$('sOutlets').selectedOptions].map(o=>+o.value);
+  if(!name||!mobile||!role||!outletIds.length)return alert('Complete staff details and select at least one outlet');
+  if(db.staff.some(s=>s.mobile===mobile&&s.id!==editStaffId))return alert('Mobile already exists');
+  let obj=editStaffId?db.staff.find(s=>s.id===editStaffId):{id:Date.now(),active:true};
+  if(password)obj.passwordHash=hashPassword(password);
+  if(!editStaffId&&!password)obj.passwordHash=hashPassword('staff123');
+  Object.assign(obj,{name,mobile,role,outletIds,workType:$('sWorkType').value,workPattern:$('sPattern').value,workDays:$('sDays').value.split(',').map(x=>x.trim()).filter(Boolean)});
+  if(!editStaffId)db.staff.push(obj);
+  logAudit('STAFF_'+(editStaffId?'UPDATE':'CREATE'),name+' ('+mobile+')');
+  closeStaffModal();save();toast(editStaffId?'Staff updated':'Staff created')
+}
+
+function toggleStaff(id){
+  let s=db.staff.find(x=>x.id===id);s.active=!s.active;logAudit('STAFF_STATUS',s.name+' set to '+(s.active?'Active':'Inactive'));save();toast('Staff status updated')
+}
+
+function deleteOutlet(id){
+  if(db.staff.some(s=>(s.outletIds||[]).includes(id)))return alert('Reassign staff from this outlet before deleting.');
+  db.outlets=db.outlets.filter(o=>o.id!==id);logAudit('OUTLET_DELETE',outletName(id));save();toast('Outlet deleted')
+}
+
+function resetAdminPassword(){
+  let p=$('newAdminPass').value;if(!p)return alert('Enter new password');if(p.length<6)return alert('Minimum 6 characters');
+  db.adminPasswordHash=hashPassword(p);logAudit('ADMIN_PASSWORD_RESET','Admin password changed');save();$('newAdminPass').value='';toast('Admin password updated')
+}
+
+$('outletForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);db.outlets.push({id:Date.now(),name:f.get('name'),location:f.get('location'),radius:+f.get('radius')||150});logAudit('OUTLET_CREATE',f.get('name'));e.target.reset();save();toast('Outlet added')}
+
+function saveSettings(){
+  db.settings.shiftStart=$('shiftStart').value;db.settings.lateAfter=$('lateAfter').value;db.settings.halfAfter=$('halfAfter').value;db.settings.minHours=+$('minHours').value||8;db.settings.weeklyReportsRequired=+$('weeklyReportsRequired').value||3;logAudit('SETTINGS_UPDATE','Attendance rules updated');save();toast('Rules saved')
+}
+
+function getGPS(){if(!navigator.geolocation)return alert('GPS is not supported.');navigator.geolocation.getCurrentPosition(p=>{$gps(p.coords.latitude,p.coords.longitude,p.coords.accuracy)},e=>alert('GPS permission is required: '+e.message),{enableHighAccuracy:true,timeout:10000})}
+
+function $gps(lat,lng,accuracy){gps={lat,lng,accuracy};$('gpsStatus').textContent='✓ GPS captured • accuracy '+Math.round(accuracy)+' m'}
+
+async function startCamera(){try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});$('video').style.display='block';$('video').srcObject=stream}catch(e){alert('Camera permission is required: '+e.message)}}
+
+function takeSelfie(){
+  let v=$('video');if(v.style.display==='none')return alert('Open selfie camera first');
+  let c=$('canvas');c.width=v.videoWidth||640;c.height=v.videoHeight||480;
+  c.getContext('2d').drawImage(v,0,0,c.width,c.height);selfieData=c.toDataURL('image/jpeg',.65);
+  $('selfieMsg').textContent='✓ Selfie captured';
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}
+}
+
+function checkIn(){
+  if(!checkSession())return;
+  let s=db.staff.find(x=>x.id===session.staffId),a=attendanceFor(s.id);
+  if(a?.checkIn)return alert('Already checked in today');if(!gps)return alert('Capture GPS location first');if(!selfieData)return alert('Capture selfie first');
+  let o=+$('todayOutlet').value;if(!o)return alert('Select an outlet');
+  let now=new Date(),tm=now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  a={id:Date.now(),staffId:s.id,date:today(),outletId:o,checkIn:tm,checkInGPS:gps,checkInSelfie:selfieData,status:tm>db.settings.lateAfter?'Late':'Present'};
+  db.attendance.push(a);logAudit('CHECK_IN',s.name+' at '+outletName(o));save();renderStaffMobile();toast('Check-in recorded')
+}
+
+function checkOut(){
+  if(!checkSession())return;
+  let s=db.staff.find(x=>x.id===session.staffId),a=attendanceFor(s.id);
+  if(!a?.checkIn)return alert('Check in first');if(a.checkOut)return alert('Already checked out');if(!gps)return alert('Capture GPS location first');if(!selfieData)return alert('Capture selfie first');
+  a.checkOut=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});a.checkOutGPS=gps;a.checkOutSelfie=selfieData;
+  logAudit('CHECK_OUT',s.name+' at '+outletName(a.outletId));save();renderStaffMobile();toast('Check-out recorded')
+}
+
+function renderStaffMobile(){
+  let s=db.staff.find(x=>x.id===session.staffId);if(!s)return;let a=attendanceFor(s.id);
+  $('staffWelcome').textContent=`Welcome ${s.name} • ${s.role} • ${s.workType} • ${s.workPattern}`;
+  $('todayOutlet').innerHTML=(s.outletIds||[]).map(id=>`<option value="${id}">${outletName(id)}</option>`).join('');
+  $('inTime').textContent=a?.checkIn||'—';$('outTime').textContent=a?.checkOut||'—';$('hours').textContent=a?.checkIn&&a?.checkOut?'Recorded':'—';
+  $('staffStatus').innerHTML=`<span class="badge ${a?.status==='Late'?'warn':a?.checkIn?'ok':'warn'}">${a?.checkOut?'Completed':a?.checkIn?(a.status||'Present'):'Not checked in'}</span>`;
+  let ws=new Date();ws.setDate(ws.getDate()-((ws.getDay()+6)%7));let w=ws.toISOString().slice(0,10),count=db.reports.filter(r=>r.staffId===s.id&&r.submitted&&r.date>=w).length;
+  $('myReports').innerHTML=`<p>Weekly target: <b>${db.settings.weeklyReportsRequired}</b></p><p>Submitted: <b>${count}</b></p>`
+}
+
+function submitReport(){
+  if(!checkSession())return;
+  let s=db.staff.find(x=>x.id===session.staffId);
+  db.reports.push({id:Date.now(),staffId:s.id,date:today(),submitted:true,submittedAt:new Date().toLocaleString()});
+  logAudit('REPORT_SUBMIT',s.name);save();renderStaffMobile();toast('Report submitted')
+}
+
+function requestLeave(){
+  if(!checkSession())return;
+  let date=$('leaveDate').value,reason=$('leaveReason').value.trim();if(!date||!reason)return alert('Enter leave date and reason');
+  let s=db.staff.find(x=>x.id===session.staffId);
+  db.leaves.push({id:Date.now(),staffId:session.staffId,date,reason,status:'Pending'});
+  logAudit('LEAVE_REQUEST',s.name+' for '+date);save();$('leaveReason').value='';toast('Leave request sent')
+}
+
+function leaveAction(id,status){
+  let x=db.leaves.find(l=>l.id===id);x.status=status;logAudit('LEAVE_'+status.toUpperCase(),staffName(x.staffId)+' on '+x.date);save();toast('Leave '+status)
+}
+
+function download(name,data,type){
+  let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type}));a.download=name;a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000)
+}
+
+function downloadJSON(){download('VK_Attendance_Backup.json',JSON.stringify(db,null,2),'application/json')}
+
+function downloadAuditLog(){
+  let csv='Timestamp,Admin,Action,Details\n';
+  db.auditLog.forEach(l=>{csv+=`"${l.timestamp}","${l.admin}","${l.action}","${l.details||''}"\n`});
+  download('VK_Audit_Log.csv',csv,'text/csv')
+}
+
+function clearAuditLog(){if(confirm('Clear all audit logs? This cannot be undone.')){db.auditLog=[];save();renderAuditLog();toast('Audit log cleared')}}
+
+function restoreJSON(e){
+  let f=e.target.files[0];if(!f)return;let r=new FileReader();
+  r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.staff||!x.outlets||!x.attendance)throw Error();db=x;save();alert('Backup restored')}catch(err){alert('Invalid VK Attendance backup')}};
+  r.readAsText(f)
+}
+
+function downloadCSV(){
+  let rows=[['Date','Staff','Mobile','Outlet','Check In','Check Out','Status']];
+  db.attendance.forEach(a=>{let s=db.staff.find(x=>x.id===a.staffId);rows.push([a.date,s?.name||'',s?.mobile||'',outletName(a.outletId),a.checkIn||'',a.checkOut||'',a.status||'Present'])});
+  let csv=rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n');
+  download('VK_Attendance.csv',csv,'text/csv')
+}
+
+function clock(){let c=$('clock');if(c)c.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
+
+setInterval(clock,1000);clock();
+</script>
+</body></html>
