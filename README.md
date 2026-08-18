@@ -60,7 +60,7 @@ A secure, mobile-first attendance management system for multi-outlet operations.
 
 | Role | Username | Password |
 |------|----------|----------|
-| Admin | admin | Rs01d@2019 |
+| Admin | admin | demo123 |
 | Staff | 9876543210 | staff123 |
 | Staff | 9876543211 | staff123 |
 
@@ -158,4 +158,3 @@ Internal use for VK Controls only. All rights reserved.
 ---
 
 **Ready to deploy?** → See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
-
