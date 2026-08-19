@@ -83,7 +83,7 @@ table{width:100%;border-collapse:collapse;background:#fff}.table-wrap{overflow:a
     <label>Password</label><input id="loginPass" type="password" placeholder="Password">
     <button class="btn" style="width:100%;margin-top:15px" onclick="login()">Login</button>
     <div class="alert" style="margin-top:14px;font-size:12px">First time? Go through setup wizard to create admin password and add staff.</div>
-    <p class="muted" style="font-size:11px;text-align:center;margin-top:20px">🔒 Enhanced Security v3 • Password hashing • Session tokens • No hardcoded credentials</p>
+    <p class="muted" style="font-size:11px;text-align:center;margin-top:20px">🔒 Enhanced Security v3.1 • Password hashing • Session tokens • No hardcoded credentials</p>
   </div>
 </div>
 
@@ -131,7 +131,14 @@ table{width:100%;border-collapse:collapse;background:#fff}.table-wrap{overflow:a
 <section id="settings" class="page"><h1>Attendance Rules & Security</h1><div class="panel"><div class="formgrid">
 <label>Shift Start<input id="shiftStart" type="time"></label><label>Late After<input id="lateAfter" type="time"></label><label>Minimum Hours<input id="minHours" type="number" step=".5"></label><label>Reports Required / Week<input id="weeklyReportsRequired" type="number" min="1" max="7"></label>
 </div><button class="btn primary" onclick="saveSettings()">Save Rules</button>
-<h3 style="margin-top:20px">🔐 Admin Password Reset</h3><div class="row"><input id="newAdminPass" type="password" placeholder="New admin password (min 8 chars)" minlength="8"><button class="btn soft" onclick="resetAdminPassword()">Update Password</button></div></div></section>
+<h3 style="margin-top:20px">🔐 Admin Password Reset</h3>
+<div class="row">
+  <input id="newAdminPass1" type="password" placeholder="New admin password (min 8 chars)" minlength="8">
+  <input id="newAdminPass2" type="password" placeholder="Confirm password" minlength="8">
+  <button class="btn warn" onclick="resetAdminPassword()">🔐 Update Admin Password</button>
+</div>
+<p class="muted" style="font-size:11px;margin-top:10px">⚠️ You will be logged out after password change</p>
+</div></section>
 <section id="backup" class="page"><h1>Backup & Restore</h1><div class="alert success">All data is stored securely in your browser. Regular backups are recommended.</div><div class="actions"><button class="btn primary" onclick="downloadJSON()">💾 Download Full Backup</button><label class="btn soft" style="display:inline-block">Restore Backup <input type="file" accept=".json" onchange="restoreJSON(event)" style="display:none"></label><button class="btn soft" onclick="downloadCSV()">📊 Attendance CSV</button></div><div class="panel"><h3>Current Data</h3><p>Staff: <b id="bStaff">0</b> | Outlets: <b id="bOutlets">0</b> | Attendance: <b id="bAttendance">0</b> | Reports: <b id="bReports">0</b> | Leave: <b id="bLeave">0</b></p></div></section>
 <section id="staffMobile" class="page">
 <div class="mobilecard"><div class="top"><div><h1>Employee Attendance</h1><p id="staffWelcome" class="muted"></p></div></div>
@@ -153,7 +160,6 @@ table{width:100%;border-collapse:collapse;background:#fff}.table-wrap{overflow:a
 const KEY='vk_attendance_portal_v3_secure';
 let db=JSON.parse(localStorage.getItem(KEY)||'null');
 
-// Initialize fresh database with NO hardcoded passwords
 if(!db){
   db={
     settings:{shiftStart:'09:15',lateAfter:'09:30',minHours:8,weeklyReportsRequired:3,company:'VK Controls'},
@@ -180,7 +186,6 @@ function staffName(id){return db.staff.find(x=>x.id==id)?.name||'Unknown'}
 function outletName(id){return db.outlets.find(x=>x.id==id)?.name||'—'}
 function attendanceFor(id,date=today()){return db.attendance.find(a=>a.staffId==id&&a.date==date)}
 
-// Setup Wizard
 function nextStep(step){
   if(step===1){
     let p=$('setupAdminPass').value, pc=$('setupAdminPassConfirm').value;
@@ -323,7 +328,19 @@ $('outletForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);db.
 
 function saveSettings(){db.settings.shiftStart=$('shiftStart').value;db.settings.lateAfter=$('lateAfter').value;db.settings.minHours=+$('minHours').value||8;db.settings.weeklyReportsRequired=+$('weeklyReportsRequired').value||3;save();toast('Rules saved')}
 
-function resetAdminPassword(){let p=$('newAdminPass').value;if(!p)return alert('Enter password');if(p.length<8)return alert('Min 8 characters');db.adminPasswordHash=hashPassword(p);save();$('newAdminPass').value='';toast('Admin password updated')}
+function resetAdminPassword(){
+  let p1=$('newAdminPass1').value;
+  let p2=$('newAdminPass2').value;
+  if(!p1||!p2){alert('❌ Enter both password fields');return}
+  if(p1.length<8 || p2.length<8){alert('❌ Min 8 characters');return}
+  if(p1!==p2){alert('❌ Passwords do not match');return}
+  db.adminPasswordHash=hashPassword(p1);
+  save();
+  alert('✅ Admin password updated successfully!\n\nYou will now be logged out.\nLogin again with your new password.');
+  $('newAdminPass1').value='';
+  $('newAdminPass2').value='';
+  logout()
+}
 
 function getGPS(){if(!navigator.geolocation)return alert('GPS not supported');navigator.geolocation.getCurrentPosition(p=>{gps={lat:p.coords.latitude,lng:p.coords.longitude,accuracy:p.coords.accuracy};$('gpsStatus').textContent='✓ GPS captured • '+Math.round(p.coords.accuracy)+' m accuracy'},e=>alert('Grant location permission'))}
 
@@ -353,7 +370,6 @@ function downloadCSV(){let rows=[['Date','Staff','Mobile','Outlet','Check In','C
 
 function clock(){let c=$('clock');if(c)c.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
 
-// On load, show setup if needed
 window.onload=function(){showSetupIfNeeded();setInterval(clock,1000);clock()}
 </script>
 </body></html>
